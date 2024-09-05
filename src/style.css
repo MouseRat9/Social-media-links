@@ -1,0 +1,58 @@
+body {
+  background-color: #141414;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+main {
+  background-image: url(./img/fundo-img\ 2.png);
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  width: 25rem;
+  padding: 2rem;
+  text-align: center;
+  border-radius: 1.5rem;
+}
+
+.person-info {
+  padding-bottom: 1rem;
+}
+
+.person-info img {
+  width: 7rem;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.func {
+  color: #fff;
+  padding: 1rem;
+}
+
+.social-media ul {
+  padding-top: 8rem;
+}
+
+.social-media ul a span {
+  padding: 0 0.5rem;
+}
+
+.social-media ul li a {
+  background-color: #a3a3a3;
+  border-radius: 1rem;
+  margin-bottom: 1rem;
+  padding: 0.8rem;
+  cursor: pointer;
+  display: flex;
+  text-align: center;
+  justify-content: center;
+  transition: 0.3 ease;
+}
+
+.social-media ul li a:hover {
+  transform: scale(1.03);
+  background-color: #fff;
+}
