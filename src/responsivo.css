@@ -1,20 +1,7 @@
 @media (max-width: 425px) {
-    body {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-    }
-    
-    main {
-      background-image: url(./img/fundo-img\ 2.png);
-      background-size: cover;
-      background-repeat: no-repeat;
-      background-attachment: fixed;
-      width: 20rem;
-    }
   
-    .social-media ul li {
-      padding: 0 2rem;
-    }
+  main {
+    background-size: contain;
+  }
+  
   }
