@@ -1,8 +1,63 @@
 * {
-    font-family: "Poppins", sans-serif;
-    list-style: none;
-    padding: 0;
     margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    font-size: 16px;
+    scroll-behavior: smooth;
+}
+
+body {
+    line-height: 1.6;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+a {
     text-decoration: none;
+    color: inherit;
+}
+
+img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+}
+
+button {
+    border: none;
+    background: none;
+    cursor: pointer;
+    font-family: inherit;
+}
+
+ul, ol {
+    list-style: none;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-weight: normal;
+    line-height: 1.2;
+}
+
+p {
+    margin-bottom: 1rem;
+}
+
+*:focus {
+    outline: 2px solid rgba(102, 126, 234, 0.5);
+    outline-offset: 2px;
+}
+
+::selection {
+    background: rgba(102, 126, 234, 0.3);
+    color: inherit;
+}
+
+::-moz-selection {
+    background: rgba(102, 126, 234, 0.3);
     color: inherit;
 }
