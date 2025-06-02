@@ -11,13 +11,23 @@ let clicks = {
 };
 
 function countClick(platform) {
+    // Carrega os dados mais recentes do localStorage
+    if (typeof(Storage) !== "undefined" && localStorage.getItem('linkClicks')) {
+        clicks = JSON.parse(localStorage.getItem('linkClicks'));
+    }
+    
+    // Incrementa o contador
     clicks[platform]++;
+    
+    // Atualiza o display
     document.getElementById(platform + '-count').textContent = clicks[platform];
 
+    // Salva no localStorage
     if (typeof(Storage) !== "undefined") {
         localStorage.setItem('linkClicks', JSON.stringify(clicks));
     }
 
+    // Efeito visual
     const counter = document.getElementById(platform + '-count');
     counter.style.transform = 'scale(1.2)';
     counter.style.background = 'rgba(255, 255, 255, 0.4)';
@@ -29,8 +39,19 @@ function countClick(platform) {
 }
 
 window.onload = function() {
+    // Carrega os contadores salvos
+    loadClickCounts();
+    
+    createParticles();
+    initializeEffects();
+    loadSavedTheme();
+};
+
+function loadClickCounts() {
     if (typeof(Storage) !== "undefined" && localStorage.getItem('linkClicks')) {
         clicks = JSON.parse(localStorage.getItem('linkClicks'));
+        
+        // Atualiza todos os contadores na tela
         Object.keys(clicks).forEach(key => {
             const element = document.getElementById(key + '-count');
             if (element) {
@@ -38,13 +59,7 @@ window.onload = function() {
             }
         });
     }
-
-    createParticles();
-
-    initializeEffects();
-
-    loadSavedTheme();
-};
+}
 
 function createParticles() {
     const particlesContainer = document.getElementById('particles');
@@ -70,25 +85,31 @@ function toggleTheme() {
     if (body.classList.contains('light-theme')) {
         body.classList.remove('light-theme');
         themeToggle.textContent = '🌙';
-        localStorage.setItem('theme', 'dark');
+        if (typeof(Storage) !== "undefined") {
+            localStorage.setItem('theme', 'dark');
+        }
     } else {
         body.classList.add('light-theme');
         themeToggle.textContent = '☀️';
-        localStorage.setItem('theme', 'light');
+        if (typeof(Storage) !== "undefined") {
+            localStorage.setItem('theme', 'light');
+        }
     }
 }
 
 function loadSavedTheme() {
-    const savedTheme = localStorage.getItem('theme');
-    const body = document.body;
-    const themeToggle = document.querySelector('.theme-toggle');
-    
-    if (savedTheme === 'light') {
-        body.classList.add('light-theme');
-        themeToggle.textContent = '☀️';
-    } else {
-        body.classList.remove('light-theme');
-        themeToggle.textContent = '🌙';
+    if (typeof(Storage) !== "undefined") {
+        const savedTheme = localStorage.getItem('theme');
+        const body = document.body;
+        const themeToggle = document.querySelector('.theme-toggle');
+        
+        if (savedTheme === 'light') {
+            body.classList.add('light-theme');
+            themeToggle.textContent = '☀️';
+        } else {
+            body.classList.remove('light-theme');
+            themeToggle.textContent = '🌙';
+        }
     }
 }
 
@@ -169,7 +190,9 @@ function resetCounters() {
             }
         });
         
-        localStorage.removeItem('linkClicks');
+        if (typeof(Storage) !== "undefined") {
+            localStorage.removeItem('linkClicks');
+        }
         alert('Contadores resetados!');
     }
 }
@@ -188,6 +211,7 @@ window.addEventListener('resize', function() {
 
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', function() {
+        // Service worker registration can be added here
     });
 }
 
@@ -199,8 +223,12 @@ function shareProfile() {
             url: window.location.href
         });
     } else {
-        navigator.clipboard.writeText(window.location.href).then(() => {
-            alert('Link copiado para a área de transferência!');
-        });
+        if (navigator.clipboard) {
+            navigator.clipboard.writeText(window.location.href).then(() => {
+                alert('Link copiado para a área de transferência!');
+            }).catch(() => {
+                alert('Não foi possível copiar o link.');
+            });
+        }
     }
 }
