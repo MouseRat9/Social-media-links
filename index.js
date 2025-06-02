@@ -10,24 +10,82 @@ let clicks = {
     github: 0
 };
 
-function countClick(platform) {
-    // Carrega os dados mais recentes do localStorage
+const API_BASE_URL = 'https://api.jsonbin.io/v3/b/683e0ad48960c979a5a473eb'; 
+const API_KEY = '$2a$10$n/TYnV5SSE6ssYMM/EItWubJwi5dj21EYXvmrg5a1N9IFsUhceJR6'; 
+
+async function loadClicksFromServer() {
+    try {
+        const response = await fetch(API_BASE_URL, {
+            method: 'GET',
+            headers: {
+                'X-Master-Key': API_KEY,
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        if (response.ok) {
+            const data = await response.json();
+            clicks = data.record || clicks;
+            updateAllCounters();
+        }
+    } catch (error) {
+        console.log('Erro ao carregar dados do servidor, usando localStorage:', error);
+        loadClicksFromLocal();
+    }
+}
+
+async function saveClicksToServer() {
+    try {
+        const response = await fetch(API_BASE_URL, {
+            method: 'PUT',
+            headers: {
+                'X-Master-Key': API_KEY,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(clicks)
+        });
+        
+        if (!response.ok) {
+            throw new Error('Erro ao salvar no servidor');
+        }
+    } catch (error) {
+        console.log('Erro ao salvar no servidor, usando localStorage:', error);
+        saveClicksToLocal();
+    }
+}
+
+function loadClicksFromLocal() {
     if (typeof(Storage) !== "undefined" && localStorage.getItem('linkClicks')) {
         clicks = JSON.parse(localStorage.getItem('linkClicks'));
+        updateAllCounters();
     }
-    
-    // Incrementa o contador
-    clicks[platform]++;
-    
-    // Atualiza o display
-    document.getElementById(platform + '-count').textContent = clicks[platform];
+}
 
-    // Salva no localStorage
+function saveClicksToLocal() {
     if (typeof(Storage) !== "undefined") {
         localStorage.setItem('linkClicks', JSON.stringify(clicks));
     }
+}
 
-    // Efeito visual
+function updateAllCounters() {
+    Object.keys(clicks).forEach(key => {
+        const element = document.getElementById(key + '-count');
+        if (element) {
+            element.textContent = clicks[key];
+        }
+    });
+}
+
+async function countClick(platform) {
+    await loadClicksFromServer();
+
+    clicks[platform]++;
+
+    document.getElementById(platform + '-count').textContent = clicks[platform];
+ 
+    await saveClicksToServer();
+    saveClicksToLocal();
+
     const counter = document.getElementById(platform + '-count');
     counter.style.transform = 'scale(1.2)';
     counter.style.background = 'rgba(255, 255, 255, 0.4)';
@@ -38,28 +96,22 @@ function countClick(platform) {
     }, 200);
 }
 
+
+function startPeriodicSync() {
+    setInterval(async () => {
+        await loadClicksFromServer();
+    }, 30000); 
+}
+
 window.onload = function() {
-    // Carrega os contadores salvos
-    loadClickCounts();
+    loadClicksFromServer();
+
+    startPeriodicSync();
     
     createParticles();
     initializeEffects();
     loadSavedTheme();
 };
-
-function loadClickCounts() {
-    if (typeof(Storage) !== "undefined" && localStorage.getItem('linkClicks')) {
-        clicks = JSON.parse(localStorage.getItem('linkClicks'));
-        
-        // Atualiza todos os contadores na tela
-        Object.keys(clicks).forEach(key => {
-            const element = document.getElementById(key + '-count');
-            if (element) {
-                element.textContent = clicks[key];
-            }
-        });
-    }
-}
 
 function createParticles() {
     const particlesContainer = document.getElementById('particles');
@@ -173,7 +225,7 @@ function typeWriter() {
     }, 50);
 }
 
-function resetCounters() {
+async function resetCounters() {
     if (confirm('Tem certeza que deseja resetar todos os contadores?')) {
         clicks = {
             whatsapp: 0,
@@ -183,16 +235,11 @@ function resetCounters() {
             github: 0
         };
         
-        Object.keys(clicks).forEach(key => {
-            const element = document.getElementById(key + '-count');
-            if (element) {
-                element.textContent = '0';
-            }
-        });
+        updateAllCounters();
+
+        await saveClicksToServer();
+        saveClicksToLocal();
         
-        if (typeof(Storage) !== "undefined") {
-            localStorage.removeItem('linkClicks');
-        }
         alert('Contadores resetados!');
     }
 }
@@ -209,9 +256,12 @@ window.addEventListener('resize', function() {
     }
 });
 
+window.addEventListener('focus', async () => {
+    await loadClicksFromServer();
+});
+
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', function() {
-        // Service worker registration can be added here
     });
 }
 
